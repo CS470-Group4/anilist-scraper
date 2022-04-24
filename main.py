@@ -23,6 +23,43 @@ query ($page: Int) {
           role
         }
       }
+      characters (page: 1) {
+        nodes {
+          name {
+            first
+            last
+          }
+        }
+        edges {
+          role
+          voiceActors {
+            name {
+              first
+              last
+            }
+          }
+        }
+      }
+      relations {
+        nodes {
+            format
+            description
+            title {
+              english
+            }
+            staff (page: 1) {
+              nodes {
+                name {
+                  first
+                  last
+                }
+              }
+              edges {
+                role
+              }
+            }
+        }
+      }
     }
   }
 }
