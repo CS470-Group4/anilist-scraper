@@ -11,6 +11,7 @@ query ($page: Int) {
       description
       title {
         english
+        romaji
       }
       staff (page: 1) {
         nodes {
@@ -82,4 +83,6 @@ for i in range(1, 21):
   anime_obj.extend(json.loads(response.text)['data']['Page']['media'])
 
 for item in anime_obj:
+  if item['title']['english'] == None:
+    item['title']['english'] = item['title']['romaji']
   print(item['title']['english'], item['staff']['nodes'][0]['name'], item['staff']['edges'][0]['role'])
