@@ -1,28 +1,48 @@
+from turtle import title
 from urllib import response
 import requests
+import json
 
 
 query = '''
-query ($id: Int) {
-  Media (id: $id, type: ANIME) {
-    id
-    title {
-      romaji
-      english
-      native
+query ($page: Int) {
+  Page (page: $page, perPage: 50) {
+    media (sort: POPULARITY_DESC, format: TV, isAdult: false) {
+      description
+      title {
+        english
+      }
+      staff (page: 1) {
+        nodes {
+          name {
+            first
+            last
+          }
+        }
+        edges {
+          role
+        }
+      }
     }
   }
 }
 '''
 
-# Define our query variables and values that will be used in the query request
-variables = {
-    'id': 15125
-}
+
 
 url = 'https://graphql.anilist.co'
 
-# Make the HTTP Api request
-response = requests.post(url, json={'query': query, 'variables': variables})
+anime_obj = []
 
-print(response.text)
+# Make the HTTP Api request
+for i in range(1, 21):
+  variables = {
+    'page': i
+  }
+
+  response = requests.post(url, json={'query': query, 'variables': variables})
+
+  anime_obj.extend(json.loads(response.text)['data']['Page']['media'])
+
+for item in anime_obj:
+  print(item['title']['english'], item['staff']['nodes'][0]['name'], item['staff']['edges'][0]['role'])
