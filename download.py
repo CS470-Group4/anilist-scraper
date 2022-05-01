@@ -114,4 +114,9 @@ def get_anime():
         related_media.remove(related)
     item['relations']['nodes'] = related_media
 
+  for item in anime_obj[:]:
+    if item['description'] == None:
+      item['description'] = "No description available"
+      print(item)
+
   return anime_obj
