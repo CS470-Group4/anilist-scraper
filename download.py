@@ -9,6 +9,11 @@ def get_anime():
       Page (page: $page, perPage: 50) {
         media (sort: POPULARITY_DESC, format: TV, isAdult: false) {
           description
+          studios(isMain: true) {
+            nodes {
+              name
+            }
+          }
           title {
             english
             romaji
@@ -47,7 +52,9 @@ def get_anime():
                   first
                   last
                 }
-                image
+                image {
+                  medium
+                }
               }
             }
           }
@@ -86,13 +93,16 @@ def get_anime():
     variables = {
       'page': i
     }
-
     response = requests.post(url, json={'query': query, 'variables': variables})
-
+    cleaned_response = json.loads(response.text)['data']['Page']['media']
     anime_obj.extend(json.loads(response.text)['data']['Page']['media'])
 
-  for item in anime_obj:
+  for item in anime_obj[:]:
     if item['title']['english'] == None:
       item['title']['english'] = item['title']['romaji']
+    try:
+      studio = item['studios']['nodes'][0]
+    except IndexError:
+      anime_obj.remove(item)
 
   return anime_obj
