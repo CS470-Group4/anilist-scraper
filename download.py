@@ -97,6 +97,7 @@ def get_anime():
     cleaned_response = json.loads(response.text)['data']['Page']['media']
     anime_obj.extend(json.loads(response.text)['data']['Page']['media'])
 
+  #If no English title is available, replace with romaji
   for item in anime_obj[:]:
     if item['title']['english'] == None:
       item['title']['english'] = item['title']['romaji']
@@ -104,5 +105,13 @@ def get_anime():
       studio = item['studios']['nodes'][0]
     except IndexError:
       anime_obj.remove(item)
+
+  #Remove Entries that aren't manga from the "related media" query
+  for item in anime_obj[:]:
+    related_media = item['relations']['nodes']
+    for related in related_media[:]:
+      if related['format'] != 'MANGA':
+        related_media.remove(related)
+    item['relations']['nodes'] = related_media
 
   return anime_obj
