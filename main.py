@@ -13,11 +13,17 @@ query ($page: Int) {
         english
         romaji
       }
+      coverImage {
+        medium
+      }
       staff (page: 1) {
         nodes {
           name {
             first
             last
+          }
+          image {
+            medium
           }
         }
         edges {
@@ -30,6 +36,9 @@ query ($page: Int) {
             first
             last
           }
+          image {
+            medium
+          }
         }
         edges {
           role
@@ -38,6 +47,7 @@ query ($page: Int) {
               first
               last
             }
+            image
           }
         }
       }
@@ -47,6 +57,7 @@ query ($page: Int) {
             description
             title {
               english
+              romaji
             }
             staff (page: 1) {
               nodes {
