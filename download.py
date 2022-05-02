@@ -24,8 +24,7 @@ def get_anime():
           staff (page: 1) {
             nodes {
               name {
-                first
-                last
+                full
               }
               image {
                 medium
@@ -38,8 +37,7 @@ def get_anime():
           characters (page: 1) {
             nodes {
               name {
-                first
-                last
+                full
               }
               image {
                 medium
@@ -49,8 +47,7 @@ def get_anime():
               role
               voiceActors {
                 name {
-                  first
-                  last
+                  full
                 }
                 image {
                   medium
@@ -66,11 +63,16 @@ def get_anime():
                   english
                   romaji
                 }
+                coverImage {
+                  medium
+                }
                 staff (page: 1) {
                   nodes {
                     name {
-                      first
-                      last
+                      full
+                    }
+                    image {
+                      medium
                     }
                   }
                   edges {
@@ -101,6 +103,7 @@ def get_anime():
   for item in anime_obj[:]:
     if item['title']['english'] == None:
       item['title']['english'] = item['title']['romaji']
+    #Drop anything that doesn't have a primary studio
     try:
       studio = item['studios']['nodes'][0]
     except IndexError:
@@ -113,6 +116,15 @@ def get_anime():
       if related['format'] != 'MANGA':
         related_media.remove(related)
     item['relations']['nodes'] = related_media
+
+  #If no English title is available in Manga, replace with romaji
+  for item in anime_obj[:]:
+    related_media = item['relations']['nodes']
+    for related in related_media[:]:
+      if related['title']['english'] == None:
+        related['title']['english'] = related['title']['romaji']
+    item['relations']['nodes'] = related_media
+
 
   for item in anime_obj[:]:
     if item['description'] == None:
