@@ -42,6 +42,7 @@ def get_anime():
               image {
                 medium
               }
+              description
             }
             edges {
               role
