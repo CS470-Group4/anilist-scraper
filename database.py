@@ -51,20 +51,33 @@ for item in anime_obj:
   except IndexError:
     print("NO MANGA")
 
-  for character in item['characters']['nodes']:
+  for character in item['characters']['edges']:
+    character_obj = {}
+    character_obj['name'] = character['node']['name']['full']
+    character_obj['desc'] = character['node']['description']
+    character_obj['pic'] = character['node']['image']['medium']
+    try:
+      character_obj['va'] = character['voiceActors'][0]
+    except IndexError:
+      print("No VA")
+    character_obj['role'] = character['role']
+    if (character_obj['role'] in ['SUPPORTING', 'BACKGROUND']):
+      character_obj['role'] = 'SIDE'
     with connection.cursor() as cursor:
       charactersql = "SELECT `NAME` FROM `ANIME_CHARACTER` WHERE `NAME` = %s"
-      cursor.execute(charactersql, (character['name']['full']))
+      cursor.execute(charactersql, (character_obj['name']))
       result = cursor.fetchone()
       if (result == None):
         insertcharactersql = "INSERT INTO `ANIME_CHARACTER` (`NAME`, `BIO`, `PIC`, `CHARACTER_TYPE`) VALUES (%s, %s, %s, %s)"
-        cursor.execute(insertcharactersql, (character['name']['full'], character['description'], character['image']['medium'], 'MAIN'))
+        cursor.execute(insertcharactersql, (character_obj['name'], character_obj['desc'], character_obj['pic'], character_obj['role']))
         connection.commit()
 
-  for staff_member in item['staff']['nodes']:
+  '''
+    for staff_member in item['staff']['nodes']:
     with connection.cursor() as cursor:
       staffsql = "SELECT `NAME` FROM `STAFF_MEMBERS` WHERE `NAME` = %s"
       cursor.execute(staffsql, (staff_member['name']['full']))
       result = cursor.fetchone()
       if (result == None):
         insertstaffsql = "INSERT INTO `STAFF_MEMBERS` (`NAME`, `PIC`, `BIO`) VALUES (%s, %s, %s)"
+  '''

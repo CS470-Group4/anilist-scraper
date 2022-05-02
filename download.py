@@ -35,16 +35,16 @@ def get_anime():
             }
           }
           characters (page: 1) {
-            nodes {
-              name {
-                full
-              }
-              image {
-                medium
-              }
-              description
-            }
             edges {
+              node {
+                name {
+                  full
+                }
+                image {
+                  medium
+                }
+                description
+              }
               role
               voiceActors {
                 name {
@@ -130,6 +130,5 @@ def get_anime():
   for item in anime_obj[:]:
     if item['description'] == None:
       item['description'] = "No description available"
-      print(item)
 
   return anime_obj
