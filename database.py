@@ -13,7 +13,7 @@ except KeyError:
 
 connection = pymysql.connect(host='localhost', user=db_username, password=db_pw, database=db_dbname, cursorclass=pymysql.cursors.DictCursor)
 
-anime_obj = download.get_anime()
+anime_obj = download.get_anime("TV")
 
 for item in anime_obj:  
 
@@ -56,6 +56,7 @@ for item in anime_obj:
     character_obj['name'] = character['node']['name']['full']
     character_obj['desc'] = character['node']['description']
     character_obj['pic'] = character['node']['image']['medium']
+    character_obj['va'] = {}
     try:
       character_obj['va'] = character['voiceActors'][0]
     except IndexError:
@@ -71,13 +72,23 @@ for item in anime_obj:
         insertcharactersql = "INSERT INTO `ANIME_CHARACTER` (`NAME`, `BIO`, `PIC`, `CHARACTER_TYPE`) VALUES (%s, %s, %s, %s)"
         cursor.execute(insertcharactersql, (character_obj['name'], character_obj['desc'], character_obj['pic'], character_obj['role']))
         connection.commit()
-
-  '''
-    for staff_member in item['staff']['nodes']:
     with connection.cursor() as cursor:
-      staffsql = "SELECT `NAME` FROM `STAFF_MEMBERS` WHERE `NAME` = %s"
-      cursor.execute(staffsql, (staff_member['name']['full']))
+      va_sql = "SELECT `NAME` FROM `VOICE_ACTOR` WHERE `NAME` = %s"
+      if (character_obj['va'] != {}):
+        cursor.execute(va_sql, (character_obj['va']['name']['full']))
+        result = cursor.fetchone()
+        if (result == None):
+          insertVASQL = "INSERT INTO `VOICE_ACTOR` (`NAME`, `BIO`, `PIC`, `A_SHOW`, `CHARACTER_PLAYED`) VALUES (%s, %s, %s, %s, %s)"
+          cursor.execute(insertVASQL, (character_obj['va']['name']['full'], character_obj['va']['description'], character_obj['va']['image']['medium'], item['title']['english'], character_obj['name']))
+          connection.commit()
+
+  for staff_member in item['staff']['edges']:
+    with connection.cursor() as cursor:
+      staff_sql = "SELECT `NAME` FROM `STAFF_MEMBERS` WHERE `NAME` = %s"
+      cursor.execute(staff_sql, (staff_member['node']['name']['full']))
       result = cursor.fetchone()
       if (result == None):
-        insertstaffsql = "INSERT INTO `STAFF_MEMBERS` (`NAME`, `PIC`, `BIO`) VALUES (%s, %s, %s)"
-  '''
+        insertStaffSQL = "INSERT INTO `STAFF_MEMBERS` (`NAME`, `BIO`, `ROLE`, `PIC`, `A_SHOW`) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(insertStaffSQL, (staff_member['node']['name']['full'], staff_member['node']['description'], staff_member['role'], staff_member['node']['image']['medium'], item['title']['english']))
+        connection.commit()
+    

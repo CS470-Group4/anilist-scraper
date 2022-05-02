@@ -3,11 +3,11 @@ from urllib import response
 import requests
 import json
 
-def get_anime():
+def get_anime(format):
   query = '''
-    query ($page: Int) {
+    query ($page: Int, $format: MediaFormat) {
       Page (page: $page, perPage: 50) {
-        media (sort: POPULARITY_DESC, format: TV, isAdult: false) {
+        media (sort: POPULARITY_DESC, format: $format, isAdult: false) {
           description
           studios(isMain: true) {
             nodes {
@@ -22,16 +22,17 @@ def get_anime():
             medium
           }
           staff (page: 1) {
-            nodes {
-              name {
-                full
-              }
-              image {
-                medium
-              }
-            }
             edges {
               role
+              node {
+                name {
+                  full
+                }
+                image {
+                  medium
+                }
+                description
+              }
             }
           }
           characters (page: 1) {
@@ -53,6 +54,7 @@ def get_anime():
                 image {
                   medium
                 }
+                description
               }
             }
           }
@@ -94,7 +96,8 @@ def get_anime():
   # Make the HTTP Api request
   for i in range(1, 21):
     variables = {
-      'page': i
+      'page': i,
+      'format': format
     }
     response = requests.post(url, json={'query': query, 'variables': variables})
     cleaned_response = json.loads(response.text)['data']['Page']['media']
