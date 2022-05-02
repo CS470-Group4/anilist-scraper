@@ -42,5 +42,10 @@ for item in anime_obj:
           cursor.execute(mangainsertsql, (MangaAuthor['name']['full'], MangaAuthor['image']['medium']))
           connection.commit()
         cursor.execute(insertsql, (mangaItem['title']['english'], mangaItem['description'], mangaItem['coverImage']['medium'], MangaAuthor['name']['full']))
+  
+      updateanimesql = "UPDATE `ANIME_SHOW` SET `MANGA_ID` = %s WHERE `NAME` = %s"
+      cursor.execute(updateanimesql, (mangaItem['title']['english'], item['title']['english']))
+      connection.commit()
+
   except IndexError:
     print("NO MANGA")
