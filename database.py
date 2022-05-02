@@ -1,3 +1,4 @@
+from sqlite3 import connect
 import pymysql
 import os
 import download
@@ -49,3 +50,21 @@ for item in anime_obj:
 
   except IndexError:
     print("NO MANGA")
+
+  for character in item['characters']['nodes']:
+    with connection.cursor() as cursor:
+      charactersql = "SELECT `NAME` FROM `ANIME_CHARACTER` WHERE `NAME` = %s"
+      cursor.execute(charactersql, (character['name']['full']))
+      result = cursor.fetchone()
+      if (result == None):
+        insertcharactersql = "INSERT INTO `ANIME_CHARACTER` (`NAME`, `BIO`, `PIC`, `CHARACTER_TYPE`) VALUES (%s, %s, %s, %s)"
+        cursor.execute(insertcharactersql, (character['name']['full'], character['description'], character['image']['medium'], 'MAIN'))
+        connection.commit()
+
+  for staff_member in item['staff']['nodes']:
+    with connection.cursor() as cursor:
+      staffsql = "SELECT `NAME` FROM `STAFF_MEMBERS` WHERE `NAME` = %s"
+      cursor.execute(staffsql, (staff_member['name']['full']))
+      result = cursor.fetchone()
+      if (result == None):
+        insertstaffsql = "INSERT INTO `STAFF_MEMBERS` (`NAME`, `PIC`, `BIO`) VALUES (%s, %s, %s)"
